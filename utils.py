@@ -48,6 +48,7 @@ def plot_skeleton_kpts(im, kpts, radius=5, shape=(640, 640), confi=0.5, line_thi
 
 # Normalize Keypoints
 def norm_kpts(lm_list, torso_size_multiplier=2.5):
+    # print("lm_list",lm_list)
     max_distance = 0
     center_x = (lm_list[12][0] +       # right_hip
                 lm_list[11][0])*0.5    # left_hip
@@ -68,6 +69,12 @@ def norm_kpts(lm_list, torso_size_multiplier=2.5):
         (shoulders_x - center_x)**2 + (shoulders_y - center_y)**2)
     max_distance = max(
         torso_size*torso_size_multiplier, max_distance)
+
+    if max_distance == 0:
+        print("max distance", max_distance)
+        return list(np.array(
+        [[0.0, 0.0] for landmark in lm_list]
+    ).flatten())
 
     pre_lm = list(np.array(
         [[(landmark[0]-center_x)/max_distance, (landmark[1]-center_y)/max_distance] for landmark in lm_list]

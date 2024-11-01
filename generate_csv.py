@@ -1,4 +1,10 @@
+import sys
+sys.path.insert(0, "ultralytics/")
+sys.path.insert(0, "../../ultralytics/") # call inside YOLO/lab
+sys.path.insert(0, "../ultralytics/") # call inside YOLO/lab
 from ultralytics import YOLO
+import ultralytics
+print("ultralytics path : ",ultralytics.__file__)
 from utils import norm_kpts
 import pandas as pd
 import cv2
@@ -51,7 +57,7 @@ for class_name in class_names:
             results = model.predict(img)
             for result in results:
                 poses = result.keypoints
-                for pose in poses:
+                for pose in poses.data:
                     for pnt in pose:
                         x, y = pnt[:2]
                         lm_list.append([int(x), int(y)])

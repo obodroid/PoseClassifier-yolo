@@ -1,4 +1,10 @@
+import sys
+sys.path.insert(0, "ultralytics/")
+sys.path.insert(0, "../../ultralytics/") # call inside YOLO/lab
+sys.path.insert(0, "../ultralytics/") # call inside YOLO/lab
 from ultralytics import YOLO
+import ultralytics
+print("ultralytics path : ",ultralytics.__file__)
 from utils import norm_kpts, plot_one_box, plot_skeleton_kpts, load_model_ext
 import pandas as pd
 import cv2
@@ -8,7 +14,7 @@ import argparse
 import json
 import random
 
-
+EPS =  1e-8
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--pose", type=str,
                 choices=[
@@ -36,6 +42,7 @@ col_names = [
 ]
 
 # YOLOv8 Pose Model
+print("loading", f"{args['pose']}.pt")
 model = YOLO(f"{args['pose']}.pt")
 
 def get_inference(img):
@@ -43,12 +50,20 @@ def get_inference(img):
     for result in results:
         for box, pose in zip(result.boxes, result.keypoints.data):
             lm_list = []
+            non_zero_kp_count = 0
+            # print("pose,",pose,result.keypoints)
             for pnt in pose:
                 x, y = pnt[:2]
+                if x > EPS or y > EPS: # is visible valid kp
+                    non_zero_kp_count += 1
                 lm_list.append([int(x), int(y)])
         
-            if len(lm_list) == 17:
-                pre_lm = norm_kpts(lm_list)
+            if non_zero_kp_count > 10:
+                try:
+                    pre_lm = norm_kpts(lm_list)
+                except Exception as e:
+                    print(e)
+                    continue
                 data = pd.DataFrame([pre_lm], columns=col_names)
                 predict = saved_model.predict(data)[0]
 
