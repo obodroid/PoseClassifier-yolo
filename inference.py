@@ -67,7 +67,9 @@ def get_inference(img):
 # Keras pose model
 saved_model, meta_str = load_model_ext(args['model'])
 class_names = json.loads(meta_str)
-colors = [[random.randint(0, 255) for _ in range(3)] for _ in class_names]
+print(class_names)
+colors = [(0,255,255), (0,255,0), (255,0,0)][:len(class_names)]
+# colors = [[random.randint(0, 255) for _ in range(3)] for _ in class_names]
 
 # Inference Image
 if args['source'].endswith('.jpg') or args['source'].endswith('.jpeg') or args['source'].endswith('.png'):
