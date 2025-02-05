@@ -13,7 +13,7 @@ import os
 import argparse
 import json
 import random
-
+from pathlib import Path
 EPS =  1e-8
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--pose", type=str,
@@ -75,12 +75,14 @@ def get_inference(img):
                     pose_class = 'Unknown Pose'
                     print('[INFO] Predictions is below given Confidence!!')
 
-                plot_one_box(box.xyxy[0], img, colors[predict.argmax()], f'{pose_class} {max(predict)}')
+                if pose_class != 'Unknown Pose': # do not plot unknown pose
+                    plot_one_box(box.xyxy[0], img, colors[predict.argmax()], f'{pose_class} {max(predict)}')
                 plot_skeleton_kpts(img, pose, radius=5, line_thick=2, confi=0.5)
 
 
 # Keras pose model
 saved_model, meta_str = load_model_ext(args['model'])
+
 class_names = json.loads(meta_str)
 print(class_names)
 colors = [(0,255,255), (0,255,0), (255,0,0)][:len(class_names)]
